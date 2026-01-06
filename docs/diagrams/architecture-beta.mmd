@@ -1,0 +1,43 @@
+graph TB
+    subgraph Client["Client"]
+        User[User]
+    end
+
+    subgraph Frontend["Frontend"]
+        React[React + TypeScript]
+        Nginx[Nginx]
+    end
+
+    subgraph Backend["Backend"]
+        FastAPI[FastAPI]
+        Router[Router]
+        Controller[Controller]
+    end
+
+    subgraph ML["ML"]
+        SVM[LinearSVC]
+        TFIDF[TfidfVectorizer]
+    end
+
+    subgraph Data["Data"]
+        Notebooks[Notebooks]
+        Dataset[83,448 Emails]
+    end
+
+    User -->|HTTP Request| React
+    React -->|Proxy| Nginx
+    Nginx -->|API Call| FastAPI
+    FastAPI -->|Route| Router
+    Router -->|Delegate| Controller
+    Controller -->|Predict| SVM
+    SVM -->|Vectorize| TFIDF
+    TFIDF -->|Load| Dataset
+    Notebooks -->|Train| SVM
+    Dataset -->|Process| Notebooks
+
+    style Client fill:#E3F2FD
+    style Frontend fill:#61DAFB
+    style Backend fill:#009688
+    style ML fill:#FF6F00
+    style Data fill:#4CAF50
+

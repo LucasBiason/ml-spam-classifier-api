@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant ML
+
+    User->>Frontend: Enter email message
+    Frontend->>Frontend: Validate input (10-5000 chars)
+    Frontend->>API: POST /predict {"message": "..."}
+    API->>API: Validate with Pydantic
+    API->>ML: Load model & vectorizer
+    ML->>ML: Preprocess text
+    ML->>ML: Vectorize text
+    ML->>ML: Predict (spam/ham)
+    ML->>ML: Calculate confidence
+    ML-->>API: Return prediction
+    API-->>Frontend: {"prediction": "spam", "confidence": 0.985}
+    Frontend->>Frontend: Display result
+    Frontend-->>User: Show classification
+

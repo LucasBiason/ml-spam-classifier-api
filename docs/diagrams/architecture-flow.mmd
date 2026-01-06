@@ -1,0 +1,47 @@
+flowchart TB
+    subgraph Client["Client Layer"]
+        User[User]
+        Browser[Browser]
+    end
+
+    subgraph Frontend["Frontend Layer"]
+        React[React App]
+        NginxFront[Nginx]
+    end
+
+    subgraph Backend["Backend Layer"]
+        FastAPI[FastAPI]
+        Router[Router]
+        Controller[Controller]
+    end
+
+    subgraph ML["ML Layer"]
+        Classifier[LinearSVC]
+        Vectorizer[TfidfVectorizer]
+        Model[Model Files]
+    end
+
+    subgraph Data["Data Pipeline"]
+        Notebooks[Jupyter Notebooks]
+        Dataset[Email Dataset]
+    end
+
+    User --> Browser
+    Browser --> React
+    React --> NginxFront
+    NginxFront --> FastAPI
+    FastAPI --> Router
+    Router --> Controller
+    Controller --> Classifier
+    Classifier --> Vectorizer
+    Vectorizer --> Model
+    Notebooks --> Dataset
+    Dataset --> Notebooks
+    Notebooks --> Model
+
+    style Client fill:#E3F2FD
+    style Frontend fill:#61DAFB
+    style Backend fill:#009688
+    style ML fill:#FF6F00
+    style Data fill:#4CAF50
+

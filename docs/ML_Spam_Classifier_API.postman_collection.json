@@ -1,0 +1,147 @@
+{
+  "info": {
+    "_postman_id": "ml-spam-api-v1",
+    "name": "ML Spam Classifier API",
+    "description": "# ML Spam Classifier API\n\nEmail Classification (spam/ham) using SVM (LinearSVC).\n\n## Model Performance\n- **Accuracy:** 98.65%\n- **Precision (Spam):** 98.32%\n- **Recall (Spam):** 99.12%\n- **F1-Score:** 98.72%\n- **Training Samples:** 83,448 emails\n\n## Base URL\n`http://localhost:8000`\n\n## Endpoints\n1. `/` and `/health` - Health check\n2. `/api/v1/model/info` - Model information\n3. `/api/v1/predict` - Email classification\n\n## Import\n1. Postman → Import → File\n2. Select this JSON\n3. All endpoints ready with examples",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/",
+          "host": ["{{base_url}}"],
+          "path": [""]
+        },
+        "description": "### Health Check\n\nAvailable at both `/` and `/health` with identical responses.\n\n**Response Fields:**\n- `status`: Service status (\"healthy\")\n- `timestamp`: ISO 8601 datetime (optional)\n- `classifier_ready`: ML model state (true/false)\n- `version`: API version (optional)\n\n**Use Case:** Monitoring, load balancer probes, readiness checks"
+      },
+      "response": [
+        {
+          "name": "200 OK - Classifier Ready",
+          "originalRequest": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/", "host": ["{{base_url}}"], "path": [""]}
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [{"key": "Content-Type", "value": "application/json"}],
+          "body": "{\n    \"status\": \"healthy\",\n    \"timestamp\": \"2025-11-06T10:23:34.730372\",\n    \"classifier_ready\": true\n}"
+        }
+      ]
+    },
+    {
+      "name": "Classify Email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"message\": \"Win a free iPhone now! Click here!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/predict",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "predict"]
+        },
+        "description": "### Classify Email\n\nClassify an email message as spam or ham.\n\n**Request Fields:**\n- `message` (string, required): Email message to classify (10-5000 characters)\n- `threshold` (float, optional): Classification threshold (0.0-1.0, default: 0.5)\n\n**Response Fields:**\n- `prediction`: \"spam\" or \"ham\"\n- `is_spam`: Boolean indicating spam classification\n- `confidence`: Confidence score (0.0-1.0)\n- `probability_spam`: Probability of spam (0.0-1.0)\n- `probability_ham`: Probability of ham (0.0-1.0)\n- `model_info`: Model metadata\n\n**Use Case:** Real-time email classification, spam filtering"
+      },
+      "response": [
+        {
+          "name": "200 OK - Spam",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"message\": \"Win a free iPhone now! Click here!\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {"raw": "{{base_url}}/api/v1/predict", "host": ["{{base_url}}"], "path": ["api", "v1", "predict"]}
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [{"key": "Content-Type", "value": "application/json"}],
+          "body": "{\n    \"prediction\": \"spam\",\n    \"is_spam\": true,\n    \"confidence\": 0.985,\n    \"probability_spam\": 0.985,\n    \"probability_ham\": 0.015,\n    \"model_info\": {\n        \"type\": \"LinearSVC\",\n        \"vectorizer\": \"TfidfVectorizer\"\n    }\n}"
+        },
+        {
+          "name": "200 OK - Ham",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"message\": \"Hello, how are you? I wanted to follow up on our meeting.\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {"raw": "{{base_url}}/api/v1/predict", "host": ["{{base_url}}"], "path": ["api", "v1", "predict"]}
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [{"key": "Content-Type", "value": "application/json"}],
+          "body": "{\n    \"prediction\": \"ham\",\n    \"is_spam\": false,\n    \"confidence\": 0.987,\n    \"probability_spam\": 0.013,\n    \"probability_ham\": 0.987,\n    \"model_info\": {\n        \"type\": \"LinearSVC\",\n        \"vectorizer\": \"TfidfVectorizer\"\n    }\n}"
+        },
+        {
+          "name": "422 Validation Error - Empty Message",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"message\": \"\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {"raw": "{{base_url}}/api/v1/predict", "host": ["{{base_url}}"], "path": ["api", "v1", "predict"]}
+          },
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "_postman_previewlanguage": "json",
+          "header": [{"key": "Content-Type", "value": "application/json"}],
+          "body": "{\n    \"detail\": [\n        {\n            \"loc\": [\"body\", \"message\"],\n            \"msg\": \"String should have at least 10 characters\",\n            \"type\": \"value_error.any_str.min_length\"\n        }\n    ]\n}"
+        },
+        {
+          "name": "422 Validation Error - Missing Field",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {"raw": "{{base_url}}/api/v1/predict", "host": ["{{base_url}}"], "path": ["api", "v1", "predict"]}
+          },
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "_postman_previewlanguage": "json",
+          "header": [{"key": "Content-Type", "value": "application/json"}],
+          "body": "{\n    \"detail\": [\n        {\n            \"loc\": [\"body\", \"message\"],\n            \"msg\": \"field required\",\n            \"type\": \"value_error.missing\"\n        }\n    ]\n}"
+        }
+      ]
+    }
+  ]
+}
+
