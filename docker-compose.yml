@@ -1,24 +1,77 @@
 services:
   test:
-    container_name: projects-ia-email-classifica-test
-    build: .
-    command: test
+    build:
+      context: ./api-service
+      dockerfile: Dockerfile
+      target: test
+    container_name: ml-spam-api-test
+    profiles: ["test"]
+    command: ["test"]
     volumes:
-      - .:/app
+      - ./api-service/htmlcov:/app/htmlcov:rw
+    networks:
+      - ${NETWORK_NAME:-ml-spam-network}
+    restart: "no"
     env_file:
-      - .env
-    ports:
-      - "9000:8000"
+      - ./configs/.env
 
-  web:
-    container_name: projects-ia-email-classifica
-    build: .
-    command: runserver
-    volumes:
-      - .:/app
-    env_file:
-      - .env
+  api:
+    build:
+      context: ./api-service
+      dockerfile: Dockerfile
+      target: production
+    container_name: ml-spam-api
+    command: ["${API_COMMAND:-runserver}"]
     ports:
-      - "9000:8000"
-    environment:
-      - PYTHONPATH=/app
+      - "${PORT:-8000}:${PORT:-8000}"
+    volumes:
+      - ./api-service/app:/app/app:${DEV_VOLUME:-ro}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT:-8000}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ${NETWORK_NAME:-ml-spam-network}
+    restart: unless-stopped
+    profiles: ["api", "full"]
+    env_file:
+      - ./configs/.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=ml-spam-api"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+    container_name: ml-spam-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - ${NETWORK_NAME:-ml-spam-network}
+    restart: unless-stopped
+    profiles: ["frontend", "full"]
+    env_file:
+      - ./configs/.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=ml-spam-frontend"
+
+networks:
+  ml-spam-network:
+    driver: bridge
+  portfolio-net:
+    external: true

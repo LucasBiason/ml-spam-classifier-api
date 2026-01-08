@@ -1,298 +1,492 @@
-# 📧 ML Spam Classifier API
+# ML Spam Classifier - Email Classification Service
 
-[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)](https://scikit-learn.org)
-[![Tests](https://img.shields.io/badge/Tests-Passing-success.svg)]()
-[![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg)]()
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](Dockerfile)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](api-service/htmlcov/index.html)
+[![Python](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://react.dev/)
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
 
-> **Production-ready email spam classification service using Machine Learning and FastAPI**
+API para classificação de emails em spam ou ham usando SVM (LinearSVC) com TF-IDF. Inclui backend FastAPI e frontend React.
 
-## 🌟 Key Highlights
+## Preview
 
-This project showcases:
+![Spam Classification Result](docs/screenshots/spam-classification.png)
 
-✨ **Machine Learning in Production** - Complete ML pipeline from training to deployment  
-🧠 **NLP Techniques** - Text processing and feature engineering with scikit-learn  
-🚀 **RESTful API** - FastAPI with automatic documentation and validation  
-🧪 **100% Test Coverage** - Comprehensive testing with pytest  
-🐳 **Docker Ready** - Containerized for easy deployment  
-📊 **High Performance** - 98.5% accuracy with sub-10ms prediction time
+*Interface completa mostrando formulário de entrada de email e resultado da classificação em tempo real. O sistema classifica corretamente emails como SPAM (vermelho) ou HAM (verde) com percentuais de confiança.*
 
-## 🚀 Funcionalidades
+## Arquitetura
 
-- **Classificação Automática**: Identifica spam vs emails legítimos
-- **API RESTful**: Endpoints para classificação em tempo real
-- **Modelo ML**: Multinomial Naive Bayes com CountVectorizer
-- **Validação de Dados**: Schemas Pydantic para validação
-- **Testes Completos**: 100% de cobertura de código
-- **Docker**: Containerização para fácil deploy
+*Diagrama simplificado da arquitetura mostrando fluxo entre Client, Frontend, Backend e ML.*
 
-## 🛠️ Tecnologias
+### Fluxo de Requisição
 
-- **Framework**: FastAPI
-- **ML**: scikit-learn (MultinomialNB, CountVectorizer)
-- **Validação**: Pydantic
-- **Testes**: pytest
-- **Containerização**: Docker
-- **Python**: 3.11+
+1. **User** digita mensagem de email no navegador
+2. **React** valida e envia POST para `/predict`
+3. **FastAPI** recebe via Router e delega para Controller
+4. **Controller** chama `SpamClassifier.predict()`
+5. **SVM (LinearSVC)** processa texto com TfidfVectorizer
+6. **Model** retorna classificação (spam/ham) com confiança
+7. **API** retorna JSON com resultado
+8. **React** renderiza resultado na interface
 
-## 📋 Requisitos
+### Request/Response Example
 
-- Python 3.11+
-- Docker (opcional)
-- Dados de treinamento em `data/emails.csv`
-
-## 🚀 Instalação
-
-### Local
-
-```bash
-# Clone o repositório
-git clone <repository-url>
-cd projects-ia-email-classifica
-
-# Instale as dependências
-pip install -r requirements.txt
-
-# Execute a aplicação
-uvicorn app.main:app --reload
-```
-
-### Docker
-
-```bash
-# Build e execute com Docker Compose
-docker compose up --build
-
-# Ou apenas o container de teste
-docker compose run --rm test
-```
-
-## 📖 Uso
-
-### API Endpoints
-
-#### 1. Status do Serviço
-```bash
-GET /
-```
-Resposta:
+**Frontend → Backend:**
 ```json
-{
-  "message": "Email Classification Service is online!",
-  "status": "healthy",
-  "classifier_ready": true
-}
-```
-
-#### 2. Health Check
-```bash
-GET /health
-```
-Resposta:
-```json
-{
-  "status": "healthy",
-  "classifier_ready": true
-}
-```
-
-#### 3. Classificação de Email
-```bash
 POST /predict
 Content-Type: application/json
 
 {
-  "message": "Win a free iPhone now! Click here!"
+  "message": "Win a free iPhone now! Click here!",
+  "threshold": 0.5
 }
 ```
-Resposta:
+
+**Nota:** O parâmetro `threshold` é opcional (padrão: 0.5). Valores mais altos (0.7-0.8) reduzem falsos positivos, mas podem aumentar falsos negativos.
+
+**Backend → Frontend:**
 ```json
 {
-  "prediction": "spam"
+  "prediction": "spam",
+  "is_spam": true,
+  "confidence": 0.985,
+  "probability_spam": 0.985,
+  "probability_ham": 0.015,
+  "model_info": {
+    "type": "LinearSVC",
+    "vectorizer": "TfidfVectorizer"
+  }
 }
 ```
 
-### Exemplos de Uso
+## Características
 
-```python
-import requests
+- **Machine Learning**: SVC (Support Vector Classifier) com TF-IDF (5000 features)
+- **Frontend**: React com TailwindCSS e TypeScript
+- **API**: FastAPI com Swagger/ReDoc
+- **Testes**: Cobertura de código configurada
+- **Docker**: Stack completo containerizado
+- **Performance**: Classificação em tempo real com scores de confiança
 
-# Classificar email
-response = requests.post(
-    "http://localhost:8000/predict",
-    json={"message": "Hello, how are you?"}
-)
-result = response.json()
-print(f"Classificação: {result['prediction']}")
-```
+## Tecnologias
 
-## 🧪 Testes
+### Frontend
+- React 18 + TypeScript
+- Vite (Build tool)
+- TailwindCSS (Styling)
+- Axios (HTTP client)
+- Lucide React (Icons)
+- Nginx (Production server)
 
-### Executar Testes
-```bash
-# Testes locais
-pytest
+### Backend
+- Python 3.13
+- FastAPI (API REST)
+- scikit-learn (LinearSVC, TfidfVectorizer)
+- pandas, numpy (Processamento de dados)
+- joblib (Serialização de modelos)
+- pytest, pytest-cov (Testes e cobertura)
 
-# Testes com cobertura
-pytest --cov=app --cov-report=term-missing
+### DevOps
+- Docker & Docker Compose (Multi-stage builds)
+- Makefile (Automação)
 
-# Testes no Docker
-docker compose run --rm test
-```
-
-### Cobertura de Código
-```bash
-# Gerar relatório de cobertura
-pytest --cov=app --cov-report=html
-```
-
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
-projects-ia-email-classifica/
-├── app/
-│   ├── __init__.py
-│   ├── main.py              # Aplicação FastAPI
-│   ├── email_classifier.py  # Modelo ML
-│   ├── schemas.py           # Schemas Pydantic
-│   └── views.py             # Endpoints da API
-├── data/
-│   ├── emails.csv           # Dados de treinamento
-│   └── ANALISE_EMAIL_CLASSIFIER.md  # Documentação ML
-├── tests/
+ml-spam-classifier-api/
+├── notebooks/                    # Jupyter notebooks (venv)
+│   ├── 01_exploratory_analysis.ipynb
+│   ├── 02_model_selection.ipynb
+│   ├── 03_hyperparameter_tuning.ipynb
+│   ├── 04_pipeline.ipynb
+│   └── artifacts/                 # Modelos treinados
+│       ├── best_model_temp.joblib
+│       ├── tfidf_vectorizer.joblib
+│       ├── metadata.joblib
+│       └── data_splits.joblib
+│
+├── api-service/                   # FastAPI (Docker only)
 │   ├── app/
-│   │   ├── test_email_classifier.py
-│   │   ├── test_schemas.py
-│   │   └── test_views.py
-│   └── test_main.py
-├── requirements.txt
-├── Dockerfile
-├── docker-compose.yml
-├── Makefile
+│   │   ├── main.py
+│   │   ├── models/
+│   │   │   └── spam_classifier.py
+│   │   ├── controllers/
+│   │   ├── routers/
+│   │   ├── schemas/
+│   │   └── core/
+│   ├── tests/                     # Testes unitários
+│   ├── models/                     # Modelos em produção
+│   ├── Dockerfile                  # Multi-stage (base, test, production)
+│   ├── entrypoint.sh               # CLI entrypoint
+│   ├── requirements.txt            # Produção
+│   └── pytest.ini                  # Configuração de testes
+│
+├── frontend/                       # React application
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── EmailForm.tsx
+│   │   │   ├── PredictionResult.tsx
+│   │   │   ├── Header.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   ├── APIStatus.tsx
+│   │   │   └── OfflineAlert.tsx
+│   │   ├── services/
+│   │   │   └── api.ts
+│   │   ├── types/
+│   │   │   └── index.ts
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── Dockerfile                  # Multi-stage (build, production)
+│   ├── nginx.conf                  # Nginx config para SPA
+│   └── package.json
+│
+├── scripts/
+│   └── deploy_models.py            # Copia modelos para API
+│
+├── configs/
+│   ├── .env.example               # Template de variáveis de ambiente
+│   ├── .env                        # Variáveis de ambiente (não versionado)
+│   └── README.md                   # Documentação de configuração
+│
+├── docs/
+│   ├── ARCHITECTURE.md             # Documentação técnica
+│   ├── SUMMARY.md                  # Resumo do projeto
+│   └── ML_Spam_Classifier_API.postman_collection.json
+│
+├── docker-compose.yml              # Docker Compose unificado
+├── Makefile                        # Comandos simplificados
 └── README.md
 ```
 
-## 🔧 Comandos Make
+## Quick Start
+
+### 1. Pré-requisitos
+
+- Docker & Docker Compose
+- Python 3.13+ (apenas para notebooks)
+- Git
+
+### 2. Clone o repositório
 
 ```bash
-# Executar aplicação
-make runapp
+git clone https://github.com/LucasBiason/ml-spam-classifier-api.git
+cd ml-spam-classifier-api
+```
 
-# Executar aplicação em modo desenvolvimento
-make runapp-dev
+### 3. Configurar variáveis de ambiente
 
-# Executar testes
+```bash
+# Copiar template e ajustar se necessário
+cp configs/.env.example configs/.env
+
+# Editar configs/.env para ajustar configurações
+# Para produção, ajuste PORT e NETWORK_NAME
+```
+
+### 4. Setup (primeira vez)
+
+```bash
+# Instalar dependências dos notebooks e criar kernel Jupyter
+make install
+
+# Copiar modelos treinados para a API (após treinar os modelos)
+make deploy-models
+```
+
+### 5. Rodar aplicação completa (Docker)
+
+```bash
+# Full stack (API + Frontend)
+make dev-full
+```
+
+Acesse:
+- **Frontend**: http://localhost:3000
+- **API**: http://localhost:8000 (ou porta configurada em configs/.env)
+- **Docs**: http://localhost:8000/docs
+
+### 6. Rodar testes
+
+```bash
+# Testes em Docker (igual ao CI/CD)
+make test
+```
+
+Relatório de coverage: `api-service/htmlcov/index.html`
+
+## Comandos Disponíveis
+
+### Setup
+```bash
+make install        # Instalar notebooks (venv)
+make deploy-models  # Copiar modelos para API
+```
+
+### Development (Docker)
+```bash
+make dev            # API only (hot reload)
+make dev-full       # API + Frontend (full stack)
+make test           # Rodar testes
+make logs           # Ver logs
+make down           # Parar containers
+```
+
+### Production (Docker)
+```bash
+make build          # Build API + Frontend
+make up             # Start API only
+make up-full        # Start API + Frontend
+make down           # Parar tudo
+```
+
+### Utilities
+```bash
+make clean          # Limpar cache
+make help           # Ver todos os comandos
+```
+
+## Endpoints da API
+
+### Health Check
+```bash
+GET /
+GET /health
+```
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "classifier_ready": true,
+  "timestamp": "2024-01-15T10:30:00"
+}
+```
+
+### Model Information
+```bash
+GET /api/v1/model/info
+```
+
+**Response:**
+```json
+{
+  "loaded": true,
+  "model_type": "LinearSVC",
+  "vectorizer_type": "TfidfVectorizer",
+  "training_samples": 83448,
+  "accuracy": 0.985,
+  "precision": 0.978,
+  "recall": 0.991,
+  "f1_score": 0.984
+}
+```
+
+### Classify Email
+```bash
+POST /api/v1/predict
+```
+
+**Request:**
+```json
+{
+  "message": "Hello, how are you? I wanted to follow up on our meeting.",
+  "threshold": 0.5
+}
+```
+
+**Nota:** O parâmetro `threshold` é opcional (padrão: 0.5). Valores mais altos (0.7-0.8) reduzem falsos positivos, mas podem aumentar falsos negativos.
+
+**Response:**
+```json
+{
+  "prediction": "ham",
+  "is_spam": false,
+  "confidence": 0.985,
+  "probability_spam": 0.015,
+  "probability_ham": 0.985,
+  "model_info": {
+    "type": "LinearSVC",
+    "vectorizer": "TfidfVectorizer"
+  }
+}
+```
+
+## Frontend React
+
+### Interface
+
+Interface focada em usabilidade:
+
+- **Layout responsivo**: Grid adaptável (desktop: 2 colunas, mobile: stack)
+- **Dark mode**: Suporte automático
+- **Real-time feedback**: Loading states e validação
+- **API status**: Indicador online/offline no header
+- **Error handling**: Mensagens claras de erro
+
+### Componentes
+
+**EmailForm** - Formulário de entrada
+- Textarea para mensagem de email
+- Validação de tamanho (10-5000 caracteres)
+- Contador de caracteres
+- Loading spinner durante classificação
+
+**PredictionResult** - Exibição de resultado
+- Badge destacado (SPAM/HAM)
+- Indicador de confiança
+- Informações do modelo
+- Cores intuitivas (vermelho para spam, verde para ham)
+
+### Validação de Entrada
+
+- **message**: 10-5000 caracteres (obrigatório)
+- Validação client-side antes do envio
+
+## Testes
+
+Testes automatizados com relatório de cobertura:
+
+```bash
+# Rodar testes localmente (Docker)
 make test
 
-# Linting e formatação
-make lint
+# Ver coverage
+open api-service/htmlcov/index.html
 ```
 
-## 📊 Modelo de Machine Learning
+**Cobertura por módulo:**
+- `models/` - Modelo ML
+- `controllers/` - Lógica de negócio
+- `routers/` - Endpoints
+- `schemas/` - Validação Pydantic
+- `core/` - Configurações
+- `main.py` - Inicialização da aplicação
 
-### Algoritmo
-- **Multinomial Naive Bayes**: Classificador probabilístico
-- **CountVectorizer**: Extração de características de texto
-- **Pipeline**: Combinação de pré-processamento e classificação
+## Modelo ML
 
-### Características
-- Processamento de texto automático
-- Remoção de stopwords
-- Normalização de texto
-- Classificação binária (spam/ham)
+### Treinamento
+- **Dataset**: Email Spam Classification (83,448 emails)
+- **Modelo**: SVC (Support Vector Classifier) otimizado
+- **Vectorizer**: TfidfVectorizer (5000 features)
+- **Pipeline**: TF-IDF vectorization + classification
 
-### 📈 Performance Metrics
+### Limitações e Considerações
 
-| Metric | Value |
-|--------|-------|
-| Accuracy | 98.5% |
-| Precision (Spam) | 97.8% |
-| Recall (Spam) | 99.1% |
-| F1-Score | 98.4% |
-| Training Time | 0.3s |
-| Prediction Time | < 10ms |
+- **Domínio de Treinamento:** Modelo treinado para emails (83,448 exemplos)
+- **Performance em Emails:** Esperada alta (domínio de treino)
+- **Performance em SMS:** Reduzida (22.95% accuracy em teste externo)
+- **Recomendação:** Use threshold mais alto (0.7-0.8) para reduzir falsos positivos em produção
+- **Mensagens Curtas:** Mensagens com menos de 10 caracteres são rejeitadas pela API
 
-### Confusion Matrix
+### Performance (Dataset de Treino)
+- **Accuracy**: 98.5%
+- **Precision (Spam)**: 97.8%
+- **Recall (Spam)**: 99.1%
+- **F1-Score**: 98.4%
+- **Training Time**: 0.3s
+- **Prediction Time**: < 10ms
+- **Cross-validation**: Validado com 5-fold CV
 
+### Detalhes Técnicos
+- Vectorização TF-IDF com 5000 features
+- Pré-processamento de texto
+- Classificação binária spam/ham
+- Probabilidades para ambas classes
+- Score de confiança calculado a partir da maior probabilidade
+
+## Desenvolvimento
+
+### Arquitetura Docker-First
+
+**Notebooks**: Rodam em venv local (análise de dados)
+```bash
+cd notebooks
+source venv/bin/activate
+jupyter notebook
 ```
-              Predicted
-              Ham    Spam
-Actual Ham    245      3    (98.8% correct)
-       Spam     5    247    (98.0% correct)
+
+**API**: Roda APENAS em Docker (dev + prod)
+```bash
+# Development (hot reload)
+make dev
+
+# Production
+make build
+make up
 ```
 
-## 💡 Why This Project?
+### Hot Reload (Development)
 
-This project demonstrates:
+O comando `make dev` ajusta automaticamente as variáveis no `configs/.env` para desenvolvimento:
+- `DEV_VOLUME=rw` - Permite escrita no volume
+- `API_COMMAND=dev` - Modo desenvolvimento com hot reload
+- `LOG_LEVEL=debug` - Logs detalhados
 
-1. **Machine Learning in Production**
-   - Complete pipeline: data → training → API → deployment
-   - Real-world application of ML concepts
+Mudanças no código recarregam automaticamente.
 
-2. **Software Engineering Best Practices**
-   - 100% test coverage
-   - Docker for reproducibility
-   - RESTful API with OpenAPI documentation
-   - Type hints and Pydantic validation
+**Nota:** Todas as variáveis de ambiente são carregadas do arquivo `configs/.env`. O `docker-compose.yml` não define variáveis diretamente, apenas referencia o arquivo via `env_file`.
 
-3. **Natural Language Processing**
-   - Text preprocessing and cleaning
-   - Feature extraction with CountVectorizer
-   - Probabilistic classification
+## Segurança
 
-## 📚 Key Learnings
+- **Non-root user**: Container roda como `appuser` (UID 1000)
+- **CORS**: Configurado (ajustar origins em produção)
+- **Validação**: Pydantic valida todos os inputs
+- **Healthcheck**: Monitoramento automático
+- **Secrets**: Todas as variáveis de ambiente em `configs/.env` (não versionado)
+- **Centralização**: Todas as configurações via `env_file`, sem variáveis hardcoded no `docker-compose.yml`
 
-1. **Naive Bayes é eficiente** para classificação de texto com dados limitados
-2. **CountVectorizer** captura bem padrões de frequência de palavras spam
-3. **Pipeline do scikit-learn** simplifica deployment e manutenção
-4. **FastAPI** permite criar APIs ML rapidamente com validação automática
-5. **Pydantic** garante robustez na validação de entrada/saída
+## Deploy em Produção
 
-## 🔒 Segurança
+### Configuração para Produção
 
-- Validação de entrada com Pydantic
-- Tratamento de erros robusto
-- Logs de aplicação
-- CORS configurado
+Edite o arquivo `configs/.env` na VPS. Todas as variáveis são carregadas deste arquivo:
 
-## 🐛 Troubleshooting
+```bash
+# Python
+PYTHONPATH=/app
+PYTHONUNBUFFERED=1
 
-### Problemas Comuns
+# API Configuration
+API_COMMAND=runserver
+PORT=8002
+WORKERS=4
+LOG_LEVEL=info
 
-1. **Modelo não encontrado**
-   - Execute o treinamento primeiro
-   - Verifique se o arquivo `model.pkl` existe
+# Development
+DEV_VOLUME=ro
 
-2. **Erro de dependências**
-   - Atualize o pip: `pip install --upgrade pip`
-   - Reinstale as dependências: `pip install -r requirements.txt`
+# Frontend
+VITE_API_URL=
 
-3. **Porta em uso**
-   - Mude a porta no docker-compose.yml
-   - Ou use: `uvicorn app.main:app --port 8001`
+# Network
+NETWORK_NAME=portfolio-net
+```
 
-## 📚 Documentação
+**Nota:** O `docker-compose.yml` usa apenas `env_file` e não define variáveis diretamente. Todas as configurações devem estar no `configs/.env`.
 
-- **Análise ML**: `data/ANALISE_EMAIL_CLASSIFIER.md`
-- **API Docs**: `http://localhost:8000/docs`
-- **Changelog**: `CHANGELOG.md`
+### Deploy
 
-## 🤝 Contribuição
+```bash
+# Build e start
+make build
+make up-full
+```
 
-1. Fork o projeto
-2. Crie uma branch para sua feature
-3. Commit suas mudanças
-4. Push para a branch
-5. Abra um Pull Request
+### Integração com Portfolio Suite
 
-## 📄 Licença
+O projeto se integra com o portfolio-suite via Nginx:
+- Frontend: `https://lucasbiason.com/ml-spam-classifier`
+- API: `https://lucasbiason.com/ml-spam-classifier-api`
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+**Nota:** O mesmo `docker-compose.yml` é usado para desenvolvimento e produção. As diferenças são controladas pelo arquivo `configs/.env`.
 
-## 📞 Suporte
+## Licença
 
-Para suporte, abra uma issue no repositório ou entre em contato com a equipe de desenvolvimento.
+MIT License - veja [LICENSE](LICENSE) para detalhes.
+
+## Autor
+
+**Lucas Biason**
+- GitHub: [@LucasBiason](https://github.com/LucasBiason)
+- Portfolio: [lucasbiason.com](https://lucasbiason.com)
+

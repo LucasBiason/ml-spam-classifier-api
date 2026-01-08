@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-01-08
+
+### Fixed
+- Corrigido endpoint da API no frontend: de `/predict` para `/api/v1/predict`
+- Resolvido problema de redirects no Nginx removendo base path e servindo na raiz
+- Corrigido problema de CORS e redirects de assets no frontend
+
+### Changed
+- Simplificado configuração do Nginx para servir frontend na raiz (sem base path)
+- Atualizado `vite.config.ts` para remover base path `/ml-spam-classifier/`
+- Simplificado `nginx.conf` seguindo padrão do ml-sales-forecasting
+
+### Added
+- Screenshots de testes de classificação (spam, ham, ambíguo) em `docs/screenshots/`
+- Screenshot de exemplo no README.md
+- Testes completos do frontend com Playwright validando classificações corretas
+
 ## [1.0.0] - 2026-01-06
 
 ### Added
